@@ -9,6 +9,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -17,6 +20,8 @@ jobs:
       - name: Run tests in Dev Container
         uses: devcontainers/ci@v0.3
         with:
+          imageName: ghcr.io/${{ github.repository }}/devcontainer
+          cacheFrom: ghcr.io/${{ github.repository }}/devcontainer
           env: |
             WOKWI_CLI_TOKEN=${{ secrets.WOKWI_CLI_TOKEN }}
           runCmd: |
