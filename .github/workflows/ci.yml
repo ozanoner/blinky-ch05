@@ -1,0 +1,32 @@
+name: Project build and test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run tests in Dev Container
+        uses: devcontainers/ci@v0.3
+        with:
+          env: |
+            WOKWI_CLI_TOKEN=${{ secrets.WOKWI_CLI_TOKEN }}
+          runCmd: |
+            idf.py -C blinky build
+            mkdir -p tmp
+            robot -d tmp/ tests/wokwi_serial.robot
+
+      - name: Upload Robot reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-reports
+          path: tmp/
